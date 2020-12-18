@@ -18,15 +18,16 @@ nearby_tickets[~valid_ticket_values].sum()
 valid_tickets = nearby_tickets[valid_ticket_values.all(axis=1), :]
 valid_tickets_bool = valid_ticket_values.copy()
 valid_tickets_bool[~valid_ticket_values.all(axis=1), :] = False
-fulfill_rules_valid = fulfill_rules[:, valid_tickets_bool.flatten()]
+fulfill_rules_valid = fulfill_rules[:, valid_tickets_bool.flatten()].reshape((-1, *valid_tickets.shape))
+ordered_rules = pd.Series(index=rules['rule name'].index, data='', dtype=str)
+while (ordered_rules == '').any():
+    rules_valid_for_all_tickets = fulfill_rules_valid.all(axis=1)
+    ticket_col_with_one_rule_match = rules_valid_for_all_tickets.sum(axis=0) == 1
+    corresponding_rules = rules_valid_for_all_tickets[:, ticket_col_with_one_rule_match].flatten()
+    ordered_rules[ticket_col_with_one_rule_match] = rules['rule name'][corresponding_rules].tolist()
+    fulfill_rules_valid[corresponding_rules, :, :] = False
+    fulfill_rules_valid[:, :, ticket_col_with_one_rule_match] = False
 
-ordered_rules = rules['rule name'].copy()
-while fulfill_rules_valid.size > 0:
-    fulfill_rules_valid = fulfill_rules_valid.reshape((rules.shape[0], *valid_tickets.shape))
-    # TODO: Code not working. Other indices must be removed and sum might have to be over axis=0 instead
-    only_one_rule_match = fulfill_rules_valid.all(axis=1).sum(axis=1) == 1
-    ordered_rules[only_one_rule_match] = rules.loc[only_one_rule_match, 'rule name']
-    fulfill_rules_valid = np.delete(fulfill_rules_valid, only_one_rule_match, 0)
-    fulfill_rules_valid = np.delete(fulfill_rules_valid, only_one_rule_match, 2)
 
-print(ordered_rules)
+your_ticket = np.loadtxt('16.txt', skiprows=22, max_rows=1, delimiter=',', dtype=np.int64)
+print(your_ticket[ordered_rules.str.startswith('departure').to_numpy()].prod())
