@@ -6,6 +6,7 @@ import re
 def solve_problem(problem: str) -> int:
     if '(' not in problem:
         # might be able to do this with functools.reduce
+        # TODO: this might not work
         ans = functools.reduce(lambda ans, i: eval(f'{ans}{problem[i.start():i.end()+1]}'),
                                re.finditer('[*+]', problem), int(problem[0]))
         #ans = int(problem[0])
