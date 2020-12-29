@@ -5,13 +5,10 @@ import re
 #%% part 1
 def solve_problem(problem: str) -> int:
     if '(' not in problem:
-        # might be able to do this with functools.reduce
-        # TODO: this might not work
-        ans = functools.reduce(lambda ans, i: eval(f'{ans}{problem[i.start():i.end()+1]}'),
-                               re.finditer('[*+]', problem), int(problem[0]))
-        #ans = int(problem[0])
-        #for i in re.finditer('[*+]', problem):
-        #    ans = eval(f'{ans}{problem[i.start():i.end()+1]}')
+        if not (first_operator_loc := re.search('[*+]', problem)):
+            return int(problem)
+        ans = functools.reduce(lambda ans, i: eval(f'{ans}{problem[i.start()-1:i.end()]}'),
+                               list(re.finditer('\d+', problem))[1:], int(problem[:first_operator_loc.start()]))
         return ans
     else:
         first_parenthesis = problem.index('(')
@@ -27,20 +24,45 @@ def solve_problem(problem: str) -> int:
             elif problem[closing_parenthesis] == ')':
                 parenthesis_depth -= 1
         inside_parenthesis = solve_problem(problem[first_parenthesis+1:closing_parenthesis])
-        rest = (problem[closing_parenthesis+1] + str(solve_problem(problem[closing_parenthesis+2:]))
-                if closing_parenthesis < len(problem)-1 else '')
+
+        rest = problem[closing_parenthesis+1:] if closing_parenthesis < len(problem)-1 else ''
         return solve_problem(f'{first_part}{inside_parenthesis}{rest}')
 
 
-#%%
 if __name__ == '__main__':
-    print(solve_problem('((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2'.replace(' ', '')))
-    # with open('18.txt') as homework_file:
-    #     solution_sum = 0
-    #     for problem_str in homework_file:
-    #         problem_str = problem_str.strip()
-    #         problem_str = problem_str.replace(' ', '')
-    #         #problem_str = problem_str.replace(')', ' )')
-    #         #problem = problem_str.split(' ')
-    #         solution_sum += solve_problem(problem_str)
-    # print(solution_sum)
+    with open('18.txt') as homework_file:
+        solution_sum = 0
+        for problem_str in homework_file:
+            solution_sum += solve_problem(problem_str.strip().replace(' ', ''))
+    print(solution_sum)
+
+
+#%% part 2
+class WeirdInt:
+    """Switches multiplication with addition so that operator precedence is switched."""
+    def __init__(self, value):
+        self.value = value
+
+    def __mul__(self, other):
+        return self.__class__(self.value+other.value)
+
+    def __add__(self, other):
+        return self.__class__(self.value*other.value)
+
+    def __repr__(self):
+        return f'WeirdInt({self.value})'
+
+    def __str__(self):
+        return f'WeirdInt({self.value})'
+
+
+if __name__ == '__main__':
+    with open('18.txt') as homework_file:
+        solution_sum = 0
+        for problem_str in homework_file:
+            problem_str = problem_str.replace(' * ', '+')
+            problem_str = problem_str.replace(' + ', '*')
+            for i in range(1, 10):
+                problem_str = problem_str.replace(str(i), f'WeirdInt({i})')
+            solution_sum += eval(problem_str).value
+    print(solution_sum)
