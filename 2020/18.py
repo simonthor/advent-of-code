@@ -1,3 +1,4 @@
+#%% day 18
 import functools
 import re
 
@@ -29,25 +30,16 @@ def solve_problem(problem: str) -> int:
         return solve_problem(f'{first_part}{inside_parenthesis}{rest}')
 
 
-if __name__ == '__main__':
-    with open('18.txt') as homework_file:
-        solution_sum = 0
-        for problem_str in homework_file:
-            solution_sum += solve_problem(problem_str.strip().replace(' ', ''))
-    print(solution_sum)
-
-
-#%% part 2
 class WeirdInt:
-    """Switches multiplication with addition so that operator precedence is switched."""
+    """Switches multiplication with subtraction so that operator precedence is ignored."""
     def __init__(self, value):
         self.value = value
 
-    def __mul__(self, other):
-        return self.__class__(self.value+other.value)
+    def __sub__(self, other):
+        return self.__class__(self.value*other.value)
 
     def __add__(self, other):
-        return self.__class__(self.value*other.value)
+        return self.__class__(self.value+other.value)
 
     def __repr__(self):
         return f'WeirdInt({self.value})'
@@ -57,12 +49,42 @@ class WeirdInt:
 
 
 if __name__ == '__main__':
+    # Solution using recursive function
+    with open('18.txt') as homework_file:
+        solution_sum = 0
+        for problem_str in homework_file:
+            solution_sum += solve_problem(problem_str.strip().replace(' ', ''))
+    print(solution_sum)
+
+    # Solution using WeirdInt. Much easier to write
+    with open('18.txt') as homework_file:
+        solution_sum = 0
+        for problem_str in homework_file:
+            problem_str = problem_str.replace(' * ', '-')
+            problem_str = problem_str.replace(' + ', '+')
+            for i in range(1, 10):
+                problem_str = problem_str.replace(str(i), f'WeirdInt({i})')
+            solution_sum += eval(problem_str).value
+    print(solution_sum)
+
+
+#%% part 2
+class IntOppositePrecedence(WeirdInt):
+    """Switches multiplication with addition so that operator precedence is switched."""
+    def __mul__(self, other):
+        return self.__class__(self.value+other.value)
+
+    def __add__(self, other):
+        return self.__class__(self.value*other.value)
+
+
+if __name__ == '__main__':
     with open('18.txt') as homework_file:
         solution_sum = 0
         for problem_str in homework_file:
             problem_str = problem_str.replace(' * ', '+')
             problem_str = problem_str.replace(' + ', '*')
             for i in range(1, 10):
-                problem_str = problem_str.replace(str(i), f'WeirdInt({i})')
+                problem_str = problem_str.replace(str(i), f'IntOppositePrecedence({i})')
             solution_sum += eval(problem_str).value
     print(solution_sum)
