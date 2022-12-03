@@ -1,7 +1,8 @@
 mod day1;
+mod day2;
 
 fn main() {
     // Run function day1
-    day1::b();
+    day2::b();
 }
 

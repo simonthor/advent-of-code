@@ -6,7 +6,7 @@ pub fn a() {
     // Read file, convert each line from string to int32, and store in vector
     // Create vector of vectors
     let mut numbers: Vec<i32> = vec![0];
-    let file = File::open("data/numbers.txt").unwrap();
+    let file = File::open("data/day1.txt").unwrap();
     let reader = BufReader::new(file);
     let mut i = 0;
     for line in reader.lines() {
@@ -33,7 +33,7 @@ pub fn b() {
     // Read file, convert each line from string to int32, and store in vector
     // Create vector of vectors
     let mut numbers: Vec<i32> = vec![0];
-    let file = File::open("data/numbers.txt").unwrap();
+    let file = File::open("data/day1.txt").unwrap();
     let reader = BufReader::new(file);
     let mut i = 0;
     for line in reader.lines() {
