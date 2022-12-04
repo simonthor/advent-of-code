@@ -4,6 +4,6 @@ mod day3;
 
 fn main() {
     // Run function day1
-    day3::a();
+    day3::b();
 }
 

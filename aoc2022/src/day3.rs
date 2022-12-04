@@ -28,3 +28,27 @@ pub fn a() {
     
     println!("The score is {}", score);
 }
+
+
+pub fn b() {
+    let file = File::open("data/day3.txt").expect("File not found");
+    let lines: Vec<String> = BufReader::new(file)
+        .lines()
+        .map(|l| l.expect("Could not read line"))
+        .collect();
+
+    let alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let mut score = 0;
+    for i in (0..lines.len()).step_by(3) {
+        let elf1 = HashSet::<_>::from_iter(lines[i].chars().collect::<Vec<char>>());
+        let elf2 = HashSet::<_>::from_iter(lines[i+1].chars().collect::<Vec<char>>());
+        let elf3 = HashSet::<_>::from_iter(lines[i+2].chars().collect::<Vec<char>>());
+        
+        let intersection = (&((&elf1) & (&elf2))) & (&elf3);
+        let overlap = intersection.into_iter().collect::<String>();
+        let point = alphabet.find(&overlap).unwrap()+1;
+        score += point;
+    }
+    
+    println!("The score is {}", score);
+}
