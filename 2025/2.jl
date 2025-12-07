@@ -9,6 +9,7 @@ function problem1()
     invalid_id_sums = 0
     for id_range in id_ranges
         start, stop = split(id_range, "-")
+        # @printf("start: %s, stop: %s\n", start, stop)
         # If start has an odd number of digits and is the same length as the stop, skip
         if length(start) % 2 == 1 && length(start) == length(stop)
             continue
@@ -16,9 +17,9 @@ function problem1()
         elseif length(start) % 2 == 1 && length(start) != length(stop)
             start = string("1" * "0"^(length(start)))
         end
-        # If stop has an odd number of digits, change stop to 100... where the length is length(stop)
+        # If stop has an odd number of digits, change stop to 999... where the length is length(stop)-1
         if length(stop) % 2 == 1
-            stop = string("1" * "0"^(length(stop)-1))
+            stop = string("9"^(length(stop)-1))
         end
 
         start_num = parse(Int64, start)
@@ -29,8 +30,7 @@ function problem1()
         # If the number is larger than stop, break
         start_number = div(start_num, 10^div(length(start),2))
         stop_number = div(stop_num, 10^div(length(stop),2))
-        
-        # @printf("start: %s, stop: %s, start_number: %d, stop_number: %d\n", start, stop, start_number, stop_number)
+        # @printf("start after trimming: %s, stop after trimming: %s, half of start: %d, half of stop: %d\n", start, stop, start_number, stop_number)
 
         for i in start_number:stop_number
             invalid_number = i * 10^div(length(start),2) + i
@@ -39,7 +39,7 @@ function problem1()
             elseif invalid_number > stop_num
                 break
             end
-            @printf("sub number: %d, invalid number: %d\n", i, invalid_number)
+            # @printf("sub number: %d, invalid number: %d\n", i, invalid_number)
             invalid_id_sums += invalid_number
         end
     end
@@ -47,4 +47,57 @@ function problem1()
 
 end
 
+function problem2()
+    # Read input into an array of strings
+    id_ranges = split(read("2.txt", String)[1:end-1], ",")
+    
+    invalid_id_sums = 0
+    for id_range in id_ranges
+        start_original, stop_original = split(id_range, "-")
+        @printf("start: %s, stop: %s\n", start_original, stop_original)
+        # TODO iterate over the prime factors only
+        for split_size in 1:div(length(stop_original),2)
+            start = start_original
+            stop = stop_original
+            # If start has an odd number of digits and is the same length as the stop, skip
+            if length(start) % split_size != 0 && length(start) == length(stop)
+                continue
+            # If start has an odd number of digits and the not the same length as the stop, change start to 100... where the length is length(start)+1
+            elseif length(start) % split_size != 0 && length(start) != length(stop)
+                start = string("1" * "0"^(length(start)))
+            end
+            # If stop has an odd number of digits, change stop to 999... where the length is length(stop)-1
+            if length(stop) % split_size != 0
+                stop = string("9"^(length(stop)-1))
+            end
+
+            start_num = parse(Int64, start)
+            stop_num = parse(Int64, stop)
+            @assert length(start) == length(stop)
+
+            # Now, start stop always have even number of digits
+            # One can simply iterate over all the possible numbers between 10^(length(start)//2) and 10^(length(stop)//2)-1, starting from the first half of the digits of start
+            # If the number is smaller than start, skip
+            # If the number is larger than stop, break
+            start_number = div(start_num, 10^div(length(start),split_size))
+            stop_number = div(stop_num, 10^div(length(stop),split_size))
+            @printf("start after trimming: %s, stop after trimming: %s, half of start: %d, half of stop: %d\n", start, stop, start_number, stop_number)
+            for i in start_number:stop_number
+                invalid_number = parse(Int64, string(i)^split_size)
+                if invalid_number < start_num
+                    continue
+                elseif invalid_number > stop_num
+                    break
+                end
+                @printf("sub number: %d, invalid number: %d\n", i, invalid_number)
+                invalid_id_sums += invalid_number
+            end
+        end
+    end
+    println(invalid_id_sums)
+
+end
+
 problem1()
+
+problem2()
